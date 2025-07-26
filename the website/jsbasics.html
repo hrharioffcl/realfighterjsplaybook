@@ -1,0 +1,712 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Basics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom scrollbar for sidebar */
+    .sidebar::-webkit-scrollbar {
+      width: 8px;
+    }
+    .sidebar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .sidebar::-webkit-scrollbar-thumb {
+      background: #64748b;
+      border-radius: 4px;
+    }
+    .sidebar::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    /* Smooth scrolling for anchor links */
+    html {
+      scroll-behavior: smooth;
+    }
+    /* Code block styling */
+    pre {
+      background-color: #1f2937;
+      color: #e5e7eb;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+    }
+    /* Table styling */
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid #e5e7eb;
+      padding: 0.75rem;
+      text-align: left;
+    }
+    th {
+      background-color: #f3f4f6;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans">
+  <div class="flex min-h-screen">
+    <!--  Sidebar -->
+    <aside class="sidebar fixed top-0 left-0 w-64 h-screen bg-white shadow-lg overflow-y-auto">
+      <div class="p-6">
+             
+         <div class="flex items-center mb-8">
+       <img src="logo.png" alt="">
+        <h1 class="text-2xl font-bold"></h1>
+      </div>
+        <nav>
+          <ul class="space-y-2">
+            <li><a href="#section1" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">1. What is JavaScript?</a></li>
+            <li><a href="#section2" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">2. Keywords & Identifiers</a></li>
+            <li><a href="#section3" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">3. Primitive vs Non-Primitive</a></li>
+            <li><a href="#section4" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">4. Null vs Undefined vs Not Defined</a></li>
+            <li><a href="#section5" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">5. Var, Let & Const</a></li>
+            <li><a href="#section6" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">6. JavaScript Scope</a></li>
+            <li><a href="#section7" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">7. Hoisting</a></li>
+            <li><a href="#section8" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">8. Temporal Dead Zone</a></li>
+            <li><a href="#section9" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">9. Type Casting</a></li>
+            <li><a href="#section10" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">10. Truthy vs Falsy</a></li>
+            <li><a href="#section11" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">11. == vs ===</a></li>
+            <li><a href="#section12" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">12. typeof vs instanceof</a></li>
+            <li><a href="#section13" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">13. Operators & Expressions</a></li>
+            <li><a href="#section14" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">14. Iteration</a></li>
+            <li><a href="#section15" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">15. Functions</a></li>
+            <li><a href="#section16" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">16. Strings</a></li>
+            <li><a href="#section17" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">17. JSON</a></li>
+            <li><a href="#section18" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">18. Operators & Increments</a></li>
+            <li><a href="#section19" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">19. Function Types</a></li>
+            <li><a href="#section20" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">20. Practice Prompts</a></li>
+            <li><a href="#section21" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">21. Control Flow</a></li>
+            <li><a href="#section22" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">22. Objects</a></li>
+            <li><a href="#section23" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">23. Object Methods</a></li>
+            <li><a href="#section24" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">24. Array Basics</a></li>
+            <li><a href="#section25" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">25. Array Methods</a></li>
+            <li><a href="#section26" class="block text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3 py-2 rounded-md">26. String Manipulation</a></li>
+          </ul>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="ml-64 flex-1 p-8">
+      <div class="max-w-3xl mx-auto">
+        <h1 class="text-4xl font-extrabold text-blue-800 mb-8">The Real Fighters' <br>JS Playbook: Basics</h1>
+
+        <!-- Section 1 -->
+        <section id="section1" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">1. What is JavaScript?</h2>
+          <p class="text-gray-600 mb-4">JavaScript is a lightweight, interpreted programming language primarily used for web development.</p>
+          <ul class="list-disc pl-6 text-gray-600 mb-4">
+            <li><strong>Runtime Environment:</strong> It runs in the browser (like Chrome) or server (Node.js).</li>
+            <li><strong>Interpreted:</strong> Code is read and executed line by line.</li>
+          </ul>
+          <pre><code>console.log("Hello from JavaScript!");</code></pre>
+        </section>
+
+        <!-- Section 2 -->
+        <section id="section2" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">2. Keywords and Identifiers</h2>
+          <p class="text-gray-600 mb-4">Keywords are reserved words like <code>let</code>, <code>const</code>, <code>if</code>, etc.</p>
+          <p class="text-gray-600 mb-4">Identifiers are the names you give to variables and functions. They:</p>
+          <ul class="list-disc pl-6 text-gray-600 mb-4">
+            <li>Cannot start with a number</li>
+            <li>Cannot use spaces or symbols (except <code>_</code> or <code>$</code>)</li>
+          </ul>
+          <pre><code>// Valid
+let userName = "Alex";
+
+// Invalid
+let 1name = "Wrong"; // ❌
+</code></pre>
+        </section>
+
+        <!-- Section 3 -->
+        <section id="section3" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">3. Primitive vs Non-Primitive Data Types</h2>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Primitive</h3>
+          <p class="text-gray-600 mb-4">String, Number, Boolean</p>
+          <pre><code>let age = 25;            // Number
+let name = "Alice";      // String
+let isAdmin = false;     // Boolean
+</code></pre>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Non-Primitive</h3>
+          <p class="text-gray-600 mb-4">Object, Array</p>
+          <pre><code>let user = { name: "Tom", age: 30 }; // Object
+let fruits = ["apple", "banana"];   // Array
+</code></pre>
+        </section>
+
+        <!-- Section 4 -->
+        <section id="section4" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">4. Null vs Undefined vs Not Defined</h2>
+          <ul class="list-disc pl-6 text-gray-600 mb-4">
+            <li><strong>Undefined:</strong> Variable declared but not assigned</li>
+            <li><strong>Null:</strong> Variable with no value (manually assigned)</li>
+            <li><strong>Not Defined:</strong> Variable never declared</li>
+          </ul>
+          <pre><code>let x;
+console.log(x); // undefined
+
+let y = null;
+console.log(y); // null
+
+console.log(z); // ReferenceError: z is not defined
+</code></pre>
+        </section>
+
+        <!-- Section 5 -->
+        <section id="section5" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">5. Var, Let & Const</h2>
+          <ul class="list-disc pl-6 text-gray-600 mb-4">
+            <li><strong>var:</strong> Function-scoped, can be redeclared</li>
+            <li><strong>let:</strong> Block-scoped, cannot be redeclared in same scope</li>
+            <li><strong>const:</strong> Block-scoped, cannot be redeclared or reassigned</li>
+          </ul>
+          <pre><code>var a = 10;
+var a = 20;  // Allowed
+
+let b = 30;
+// let b = 40; ❌ Not allowed
+
+const c = 50;
+// c = 60; ❌ Error: can't reassign
+</code></pre>
+        </section>
+
+        <!-- Section 6 -->
+        <section id="section6" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">6. JavaScript Scope (Global, Function, Block)</h2>
+          <p class="text-gray-600 mb-4">Scope is the place where a variable exists and can be accessed.</p>
+          <ul class="list-disc pl-6 text-gray-600 mb-4">
+            <li><strong>Global Scope:</strong> Declared outside any function or block, available everywhere.</li>
+            <li><strong>Function Scope:</strong> Declared inside a function using <code>var</code>. Only accessible inside the function.</li>
+            <li><strong>Block Scope:</strong> Declared inside <code>{ }</code> using <code>let</code> or <code>const</code>. Only accessible inside the block.</li>
+          </ul>
+          <pre><code>var x = 10; // Global Scope
+
+function test() {
+  var y = 20; // Function Scope
+  if (true) {
+    let z = 30; // Block Scope
+    console.log(z); // ✅ 30
+  }
+  // console.log(z); ❌ Error: z is block-scoped
+}
+
+test();
+console.log(x); // ✅ 10
+// console.log(y); ❌ Error: y is function-scoped
+</code></pre>
+        </section>
+
+        <!-- Section 7 -->
+        <section id="section7" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">7. Hoisting - JavaScript Lifts Declarations</h2>
+          <p class="text-gray-600 mb-4">Hoisting means JavaScript moves variable and function declarations to the top of their scope before executing the code. Only declarations are hoisted — not assignments.</p>
+          <pre><code>console.log(a); // undefined (not error because 'var' is hoisted)
+var a = 5;
+
+sayHi(); // ✅ Works! Function declarations are hoisted
+function sayHi() {
+  console.log("Hello!");
+}
+
+// let and const are hoisted too, but in a special way (see next)
+</code></pre>
+        </section>
+
+        <!-- Section 8 -->
+        <section id="section8" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">8. Temporal Dead Zone (TDZ) - Let and Const</h2>
+          <p class="text-gray-600 mb-4">TDZ is the time between entering a block and the variable's declaration. In this period, accessing <code>let</code> or <code>const</code> causes an error, even though they are hoisted.</p>
+          <pre><code>console.log(a); // undefined (var is hoisted)
+
+console.log(b); // ❌ ReferenceError: Cannot access 'b' before initialization
+let b = 10;
+
+{
+  console.log(x); // ❌ Error: in TDZ
+  const x = 100;
+}
+</code></pre>
+          <p class="text-gray-600 mb-4">Internally, the JavaScript engine sets up memory for <code>let</code>/<code>const</code> but does not allow access until the line where they are declared is reached.</p>
+        </section>
+
+        <!-- Section 9 -->
+        <section id="section9" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">9. Type Casting – Implicit & Explicit</h2>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Implicit Type Conversion (Type Coercion)</h3>
+          <p class="text-gray-600 mb-4">JavaScript automatically converts types when needed. Internally, it uses rules based on operators:</p>
+          <pre><code>let a = '5' + 2;     // "52" → number 2 is converted to string
+let b = '5' - 2;     // 3 → string is converted to number
+let c = true + 1;    // 2 → true becomes 1
+let d = false + 1;   // 1 → false becomes 0
+</code></pre>
+          <p class="text-gray-600 mb-4">This happens during operations like <code>+</code>, <code>-</code>, <code>==</code>, etc. where types differ.</p>
+          <p class="text-gray-600 mb-4">Internally:</p>
+          <ul class="list-disc pl-6 text-gray-600 mb-4">
+            <li>When using <code>+</code>, if one operand is a string, the other becomes a string.</li>
+            <li>For <code>-</code>, <code>*</code>, <code>/</code>, both operands are converted to numbers.</li>
+          </ul>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Explicit Type Conversion</h3>
+          <p class="text-gray-600 mb-4">You can manually convert using functions:</p>
+          <pre><code>Number("123")     // 123
+String(456)       // "456"
+Boolean(0)        // false
+Boolean("hi")     // true
+</code></pre>
+        </section>
+
+        <!-- Section 10 -->
+        <section id="section10" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">10. Truthy vs Falsy Values</h2>
+          <p class="text-gray-600 mb-4">Every value in JavaScript has an inherent truthy or falsy behavior when used in conditions.</p>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Falsy Values (Evaluate to false):</h3>
+          <ul class="list-disc pl-6 text-gray-600 mb-4">
+            <li><code>false</code></li>
+            <li><code>0</code> and <code>-0</code></li>
+            <li><code>""</code> (empty string)</li>
+            <li><code>null</code></li>
+            <li><code>undefined</code></li>
+            <li><code>NaN</code></li>
+          </ul>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Truthy Values (Everything else):</h3>
+          <ul class="list-disc pl-6 text-gray-600 mb-4">
+            <li><code>"hello"</code></li>
+            <li><code>1</code>, <code>-1</code></li>
+            <li><code>[]</code>, <code>{}</code></li>
+            <li><code>function() {}</code></li>
+          </ul>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Example:</h3>
+          <pre><code>if ("") {
+  console.log("Won't run - falsy");
+} else {
+  console.log("Falsy branch"); // ✅ Runs
+}
+
+if ("hello") {
+  console.log("Truthy branch"); // ✅ Runs
+}
+</code></pre>
+          <p class="text-gray-600 mb-4">Internally: JS calls <code>ToBoolean()</code> when evaluating conditions. Falsy values always convert to <code>false</code>.</p>
+        </section>
+
+        <!-- Section 11 -->
+        <section id="section11" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">11. == vs === – Loose vs Strict Equality</h2>
+          <p class="text-gray-600 mb-4"><code>==</code> allows type coercion before comparison, while <code>===</code> does not.</p>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Examples:</h3>
+          <pre><code>5 == "5"      // true → string "5" becomes number 5
+5 === "5"     // false → different types
+
+null == undefined   // true → loosely equal
+null === undefined  // false → strictly different
+</code></pre>
+          <p class="text-gray-600 mb-4">Internally:</p>
+          <ul class="list-disc pl-6 text-gray-600 mb-4">
+            <li>With <code>==</code>, JavaScript tries to convert types to match before comparing.</li>
+            <li>With <code>===</code>, types must match exactly — no conversion happens.</li>
+          </ul>
+          <p class="text-gray-600 mb-4">Tip: Use <code>===</code> unless you have a very specific reason to allow type coercion.</p>
+        </section>
+
+        <!-- Section 12 -->
+        <section id="section12" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">12. typeof vs instanceof – Type Checking</h2>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">typeof</h3>
+          <p class="text-gray-600 mb-4">Returns the type as a string (e.g., <code>"number"</code>, <code>"string"</code>)</p>
+          <pre><code>typeof 123        // "number"
+typeof "hello"    // "string"
+typeof []         // "object"
+typeof null       // "object" (known quirk)
+</code></pre>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">instanceof</h3>
+          <p class="text-gray-600 mb-4">Checks if an object is an instance of a constructor or class.</p>
+          <pre><code>let arr = [];
+console.log(arr instanceof Array);  // true
+console.log(arr instanceof Object); // true
+
+let date = new Date();
+console.log(date instanceof Date); // true
+</code></pre>
+          <p class="text-gray-600 mb-4">Internally:</p>
+          <ul class="list-disc pl-6 text-gray-600 mb-4">
+            <li><code>typeof</code> checks the internal <code>[[Type]]</code> tag of primitives.</li>
+            <li><code>instanceof</code> walks the object's prototype chain to check inheritance.</li>
+          </ul>
+        </section>
+
+        <!-- Section 13 -->
+        <section id="section13" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">13. Operators and Expressions</h2>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Logical Operators</h3>
+          <p class="text-gray-600 mb-4"><code>&&</code> (AND): Returns the first falsy value or the last value if all are truthy.</p>
+          <pre><code>console.log(true && false); // false
+console.log("Hello" && 123); // 123
+</code></pre>
+          <p class="text-gray-600 mb-4"><code>||</code> (OR): Returns the first truthy value or the last falsy one.</p>
+          <pre><code>console.log(false || "Hi"); // "Hi"
+console.log(0 || "fallback"); // "fallback"
+</code></pre>
+          <p class="text-gray-600 mb-4"><code>!</code> (NOT): Inverts the truthiness of a value.</p>
+          <pre><code>console.log(!true); // false
+console.log(!0); // true
+</code></pre>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Ternary Operator</h3>
+          <p class="text-gray-600 mb-4">A shorthand for <code>if...else</code>.</p>
+          <pre><code>let age = 20;
+let status = age >= 18 ? "Adult" : "Minor";
+console.log(status); // "Adult"
+</code></pre>
+        </section>
+
+        <!-- Section 14 -->
+        <section id="section14" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">14. Iteration</h2>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">for...in vs for...of</h3>
+          <p class="text-gray-600 mb-4"><code>for...in</code>: Iterates over enumerable properties (keys) of an object.</p>
+          <pre><code>let obj = { a: 1, b: 2 };
+for (let key in obj) {
+  console.log(key); // a, b
+}
+</code></pre>
+          <p class="text-gray-600 mb-4"><code>for...of</code>: Iterates over values of an iterable (arrays, strings).</p>
+          <pre><code>let arr = ["x", "y"];
+for (let value of arr) {
+  console.log(value); // x, y
+}
+</code></pre>
+        </section>
+
+        <!-- Section 15 -->
+        <section id="section15" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">15. Functions</h2>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Arrow Functions</h3>
+          <p class="text-gray-600 mb-4">Concise syntax introduced in ES6. Inherits <code>this</code> from surrounding context.</p>
+          <pre><code>const add = (a, b) => a + b;
+console.log(add(2, 3)); // 5
+</code></pre>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Default Parameters</h3>
+          <p class="text-gray-600 mb-4">Allow parameters to have default values if no value is provided.</p>
+          <pre><code>function greet(name = "Guest") {
+  console.log(`Hello, ${name}`);
+}
+greet(); // Hello, Guest
+</code></pre>
+        </section>
+
+        <!-- Section 16 -->
+        <section id="section16" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">16. Strings</h2>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Template Literals</h3>
+          <p class="text-gray-600 mb-4">Backtick strings with embedded expressions using <code>${}</code>.</p>
+          <pre><code>let name = "Hari";
+console.log(`Welcome, ${name}`); // Welcome, Hari
+</code></pre>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Escape Sequences</h3>
+          <p class="text-gray-600 mb-4">Special characters in strings:</p>
+          <ul class="list-disc pl-6 text-gray-600 mb-4">
+            <li><code>\n</code> - newline</li>
+            <li><code>\t</code> - tab</li>
+            <li><code>\"</code> - double quote</li>
+          </ul>
+          <pre><code>console.log("Line1\nLine2");
+// Output:
+// Line1
+// Line2
+</code></pre>
+        </section>
+
+        <!-- Section 17 -->
+        <section id="section17" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">17. JSON</h2>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">JSON.stringify</h3>
+          <p class="text-gray-600 mb-4">Converts a JavaScript object to a JSON string.</p>
+          <pre><code>let user = { name: "Ram", age: 30 };
+let str = JSON.stringify(user);
+console.log(str); // '{"name":"Ram","age":30}'
+</code></pre>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">JSON.parse</h3>
+          <p class="text-gray-600 mb-4">Converts a JSON string back to a JavaScript object.</p>
+          <pre><code>let obj = JSON.parse(str);
+console.log(obj.name); // Ram
+</code></pre>
+        </section>
+
+        <!-- Section 18 -->
+        <section id="section18" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">18. Operators & Increments</h2>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Preincrement vs Postincrement</h3>
+          <p class="text-gray-600 mb-4"><code>++i</code> increments before the value is used. <code>i++</code> increments after the value is used.</p>
+          <pre><code>let a = 1;
+console.log(++a); // 2 (then a is 2)
+
+let b = 1;
+console.log(b++); // 1 (then b becomes 2)
+</code></pre>
+        </section>
+
+        <!-- Section 19 -->
+        <section id="section19" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">19. Function Types</h2>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Function Declaration</h3>
+          <p class="text-gray-600 mb-4">Declared with the <code>function</code> keyword. Hoisted to the top of its scope.</p>
+          <pre><code>function greet() {
+  console.log("Hello!");
+}
+</code></pre>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Function Expression</h3>
+          <p class="text-gray-600 mb-4">Function stored in a variable. Not hoisted.</p>
+          <pre><code>const add = function(a, b) {
+  return a + b;
+};
+</code></pre>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Anonymous Function</h3>
+          <p class="text-gray-600 mb-4">A function without a name. Often used in expressions or as arguments.</p>
+          <pre><code>setTimeout(function() {
+  console.log("Anonymous!");
+}, 1000);
+</code></pre>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Named Function Expression</h3>
+          <p class="text-gray-600 mb-4">A function with a name inside an expression. Useful for recursion or debugging.</p>
+          <pre><code>const multiply = function mul(a, b) {
+  return a * b;
+};
+</code></pre>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Arrow Functions</h3>
+          <p class="text-gray-600 mb-4">Concise syntax for functions. They don’t have their own <code>this</code>.</p>
+          <pre><code>const square = (x) => x * x;
+</code></pre>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Default Parameters</h3>
+          <p class="text-gray-600 mb-4">Provide default values if no argument is passed.</p>
+          <pre><code>function greet(name = "Guest") {
+  console.log("Hello, " + name);
+}
+</code></pre>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Calling Functions</h3>
+          <p class="text-gray-600 mb-4">Invoke a function using parentheses <code>()</code>.</p>
+          <pre><code>greet("Hari");
+</code></pre>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Function Hoisting</h3>
+          <p class="text-gray-600 mb-4">Declarations are hoisted, but expressions are not.</p>
+          <pre><code>sayHi(); // Works
+
+function sayHi() {
+  console.log("Hi!");
+}
+
+// sayHello(); ❌ Error
+const sayHello = function() {
+  console.log("Hello!");
+};
+</code></pre>
+        </section>
+
+        <!-- Section 20 -->
+        <section id="section20" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">20. Practice Prompts</h2>
+          <p class="text-gray-600 mb-4">Try these exercises to practice function concepts:</p>
+          <ul class="list-disc pl-6 text-gray-600 mb-4">
+            <li>Create a function declaration called <code>greetUser</code> that accepts a name and prints "Hello, [name]!"</li>
+            <li>Use a function expression to create <code>sum</code> that adds two numbers.</li>
+            <li>Pass an anonymous function into <code>setTimeout</code> that logs a message after 2 seconds.</li>
+            <li>Write a named function expression called <code>multiply</code> and use it to multiply two numbers.</li>
+            <li>Create a function <code>isEven</code> that checks if a number is even and use it in a loop from 1 to 10.</li>
+            <li>Create a function <code>processData</code> that accepts a number and a callback function. Call the function on the number.</li>
+            <li>Write a function <code>getFullName</code> that combines first and last names into a full name string.</li>
+            <li>Use default parameters in a function <code>welcomeUser(name = "Guest")</code> and log a welcome message.</li>
+            <li>Convert a traditional function into an arrow function to square a number.</li>
+            <li>Test function hoisting: Call a function declaration and a function expression before defining them. Observe results.</li>
+          </ul>
+        </section>
+
+        <!-- Section 21 -->
+        <section id="section21" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">21. Control Flow</h2>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Loops</h3>
+          <h4 class="text-lg font-medium text-gray-700 mt-4 mb-2">for loop</h4>
+          <p class="text-gray-600 mb-4">Used when the number of iterations is known.</p>
+          <pre><code>for (let i = 0; i < 5; i++) {
+  console.log("Count:", i);
+}
+</code></pre>
+          <h4 class="text-lg font-medium text-gray-700 mt-4 mb-2">while loop</h4>
+          <p class="text-gray-600 mb-4">Used when the condition is checked before the loop body is executed.</p>
+          <pre><code>let i = 0;
+while (i < 5) {
+  console.log("While count:", i);
+  i++;
+}
+</code></pre>
+          <h4 class="text-lg font-medium text-gray-700 mt-4 mb-2">do...while loop</h4>
+          <p class="text-gray-600 mb-4">Executes the loop body once before checking the condition.</p>
+          <pre><code>let j = 0;
+do {
+  console.log("Do-While count:", j);
+  j++;
+} while (j < 5);
+</code></pre>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Break and Continue</h3>
+          <p class="text-gray-600 mb-4"><code>break</code>: Terminates the loop immediately.</p>
+          <pre><code>for (let i = 0; i < 5; i++) {
+  if (i === 3) break;
+  console.log(i); // Stops when i is 3
+}
+</code></pre>
+          <p class="text-gray-600 mb-4"><code>continue</code>: Skips the current iteration and moves to the next one.</p>
+          <pre><code>for (let i = 0; i < 5; i++) {
+  if (i === 2) continue;
+  console.log(i); // Skips 2
+}
+</code></pre>
+        </section>
+
+        <!-- Section 22 -->
+        <section id="section22" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">22. Objects and Object Literals</h2>
+          <p class="text-gray-600 mb-4">An object is a collection of key-value pairs. Use curly braces <code>{}</code> to define it.</p>
+          <ul class="list-disc pl-6 text-gray-600 mb-4">
+            <li>Access with dot: <code>object.key</code></li>
+            <li>Access with brackets: <code>object["key"]</code></li>
+            <li>Add new key: <code>object.newKey = value</code></li>
+            <li>Delete key: <code>delete object.key</code></li>
+          </ul>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Practice Prompts</h3>
+          <ul class="list-disc pl-6 text-gray-600 mb-4">
+            <li>Create an object for a phone with brand, model, and price.</li>
+            <li>Access and log the model.</li>
+            <li>Add a new property "color".</li>
+            <li>Delete the price property.</li>
+          </ul>
+        </section>
+
+        <!-- Section 23 -->
+        <section id="section23" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">23. Object Methods</h2>
+          <p class="text-gray-600 mb-4">Useful methods to extract keys, values, and entries from an object:</p>
+          <ul class="list-disc pl-6 text-gray-600 mb-4">
+            <li><code>Object.keys(obj)</code> → Array of keys</li>
+            <li><code>Object.values(obj)</code> → Array of values</li>
+            <li><code>Object.entries(obj)</code> → Array of [key, value] pairs</li>
+          </ul>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Practice Prompts</h3>
+          <ul class="list-disc pl-6 text-gray-600 mb-4">
+            <li>Create a student object with name, age, and grade.</li>
+            <li>List keys using <code>Object.keys()</code>.</li>
+            <li>List values using <code>Object.values()</code>.</li>
+            <li>Log key-value pairs using <code>Object.entries()</code>.</li>
+          </ul>
+        </section>
+
+        <!-- Section 24 -->
+        <section id="section24" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">24. Array Basics</h2>
+          <p class="text-gray-600 mb-4">Arrays hold ordered lists of data. Use square brackets <code>[]</code> to define them.</p>
+          <ul class="list-disc pl-6 text-gray-600 mb-4">
+            <li>Access by index: <code>arr[0]</code></li>
+            <li>Check length: <code>arr.length</code></li>
+          </ul>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Practice Prompts</h3>
+          <ul class="list-disc pl-6 text-gray-600 mb-4">
+            <li>Create an array of 5 animals.</li>
+            <li>Log the 2nd and 4th items.</li>
+            <li>Change the first item to "lion".</li>
+            <li>Print the total number of items.</li>
+          </ul>
+        </section>
+
+        <!-- Section 25 -->
+        <section id="section25" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">25. Array Methods</h2>
+          <p class="text-gray-600 mb-4">JavaScript arrays have built-in methods to add/remove or manipulate items:</p>
+          <ul class="list-disc pl-6 text-gray-600 mb-4">
+            <li><code>push()</code> → Add to end</li>
+            <li><code>pop()</code> → Remove last</li>
+            <li><code>shift()</code> → Remove first</li>
+            <li><code>unshift()</code> → Add to beginning</li>
+            <li><code>splice()</code> → Add/remove items at specific position</li>
+            <li><code>slice()</code> → Copy portion of the array</li>
+          </ul>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Practice Prompts</h3>
+          <ul class="list-disc pl-6 text-gray-600 mb-4">
+            <li>Add "tiger" to the end of your animal array.</li>
+            <li>Remove the first item.</li>
+            <li>Insert "elephant" at the 2nd position.</li>
+            <li>Copy the last 3 items using <code>slice()</code>.</li>
+          </ul>
+        </section>
+
+        <!-- Section 26 -->
+        <section id="section26" class="mb-12">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">26. String Manipulation</h2>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Basic Methods</h3>
+          <ul class="list-disc pl-6 text-gray-600 mb-4">
+            <li><code>toUpperCase()</code>: Converts entire string to uppercase.</li>
+            <li><code>toLowerCase()</code>: Converts entire string to lowercase.</li>
+            <li><code>trim()</code>: Removes whitespace from both ends of the string.</li>
+            <li><code>charAt(index)</code>: Returns the character at the specified index.</li>
+          </ul>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Other Useful Methods</h3>
+          <ul class="list-disc pl-6 text-gray-600 mb-4">
+            <li><code>split(separator)</code>: Splits string into an array based on a separator.</li>
+            <li><code>concat(str)</code>: Combines two or more strings.</li>
+            <li><code>substring(start, end)</code>: Extracts characters between two indices.</li>
+          </ul>
+          <h3 class="text-xl font-medium text-gray-700 mt-6 mb-2">Practice Prompts</h3>
+          <ul class="list-disc pl-6 text-gray-600 mb-4">
+            <li>Convert a user input to uppercase and lowercase.</li>
+            <li>Trim a string and count the length before and after trimming.</li>
+            <li>Get the first character of a string using <code>charAt(0)</code>.</li>
+            <li>Split a sentence into words and display them as an array.</li>
+            <li>Concatenate two strings and print the result.</li>
+            <li>Extract a substring from a string between two indices.</li>
+          </ul>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
